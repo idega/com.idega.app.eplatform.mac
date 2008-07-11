@@ -1,0 +1,186 @@
+<html>
+
+<head>
+<title>DMGBuilder Documentation</title>
+</head>
+
+<body>
+
+<h3>DMGBuilder</h3>
+
+<p><b>Warning:</b> <i>DMGBuilder is currently pre-alpha software. This product is likely to have significant defects which may cause the software to not behave as designed. While every effort has been made to ensure this software is safe, it may cause damage to the system it is run on or the system the DMG files are distributed to.</i>
+
+<p>DMGBuilder is a command line tool for building DMG files. These files are typically used to distribute Macintosh software. This tool allows automatically building a DMG file from a makefile, or from Xcode. This tool supports settings Finder display attributes including the window size, background image, and icon positions.</p>
+<p>DMGBuilder is run from the command line with the following syntax:</p>
+<p>dmgbuilder <i>config-file</i>+</p>
+<p>dmgbuilder --dump <i>db-file</i>+</p>
+<p><i>config-file</i> is an XML configuration file that determines what files get copied into the image as well as display attributes such as background images and icon placement. An example configuration file is shown below.</p>
+<p><i>db-file</i> is a Desktop Database file (typically ".DS_Store"). This mostly undocumented method will print out a list of all the items in the database file.</p>
+
+<p>Please send comments or bug reports to: &#x0064;&#x006d;&#x0067;&#x0062;&#x0075;&#x0069;&#x006c;&#x0064;&#x0065;&#x0072;&#x0040;&#x0074;&#x0068;&#x0069;&#x0072;&#x0064;&#x0065;&#x0070;&#x0069;&#x0063;&#x002e;&#x0063;&#x006f;&#x006d;</p>
+
+<h3>Sample Configuration File</h3>
+<p><code><pre>
+&lt;dmgbuilder version="0.1"&gt;
+    &lt;image name="Sudoku Install" file="Release/Sudoku.dmg" open_folder="."&gt;
+        &lt;file name="Sudoku.app" file="Release/Sudoku.app" x="113" y="206" /&gt;
+        &lt;link name="Applications" target="/Applications" x="353" y="206" /&gt;
+        &lt;folder name=".background"&gt;
+            &lt;file name="bkgnd.png" source="Resources/installer.png" /&gt;
+        &lt;/folder&gt;
+        &lt;view type="icon" x="10" y="60" width="480" height="380" icon_size="128"
+              grid="false" show_toolbar="false" background=".background/bkgnd.png" /&gt;
+    &lt;/image&gt;
+&lt;/dmgbuilder&gt;
+</pre></code></p>
+
+<p>Following is a list of all the tags that are understood by DMGBuilder:</p>
+
+<p>
+  <a name="dmgbuilder"></a>
+  <h3>dmgbuilder</h3>
+  <p>
+    Can Contain:<br>
+    <a href="#image">image</a> (0 or more)<br>
+  </p>
+  <p>
+    <table border=3>
+    <tr><td>Attribute</td><td>Description</td><td>Required</td><td>Default Value</td></tr>
+    <tr><td>version</td><td>The version of dmgbuilder this file is compatible with. To be
+                            compatible with future versions, this attribute should be
+                            explicitly set to "0.1".</td><td>No</td><td>"0.1"</td></tr>
+    </table>
+  </p>
+</p>
+
+<p>
+  <a name="image"></a>
+  <h3>image</h3>
+  <p>
+    Contained In:<br>
+    <a href="#dmgbuilder">dmgbuilder</a><br>
+  <p>
+    Can Contain:<br>
+    <a href="#view">view</a> (0 or 1)<br>
+    <a href="#file">file</a> (0 or more)<br>
+    <a href="#folder">folder</a> (0 or more)<br>
+    <a href="#link">link</a> (0 or more)<br>
+  </p>
+  <p>
+    <table border=3>
+    <tr><td>Attribute</td><td>Description</td><td>Required</td><td>Default Value</td></tr>
+    <tr><td>file</td><td>The path to the image file created. This should probably end in ".dmg".</td><td>Yes</td><td></td></tr>
+    <tr><td>name</td><td>The name of the disk in this image.</td><td>Yes</td><td></td></tr>
+	<tr><td>open_folder</td><td>The path in the image to the folder to automatically open when the image is mounted. Use "." to open the root directory.</td><td>No</td><td>None</td></tr>
+	<tr><td>template_size</td><td>The maximum image size created in MB. This must be large enough to hold all of the files you copy to the image. However, smaller values will be faster.</td><td>No</td><td>"1024"</td></tr>
+    </table>
+  </p>
+</p>
+
+<p>
+  <a name="view"></a>
+  <h3>view</h3>
+  <p>
+    Contained In:<br>
+    <a href="#image">image</a></br>
+    <a href="#folder">folder</a></br>
+  </p>
+  <p>
+    <table border=3>
+    <tr><td>Attribute</td><td>Description</td><td>Required</td><td>Default Value</td></tr>
+    <tr><td>background</td><td>The local path to a background image to show in this view. <b>Note:</b> The background image must be
+	                     be added into the archive before this view setting can be specified.</td><td>No</td><td>None</td></tr>
+	<tr><td>font_size</td><td>The size of the icon label text.</td><td>No</td><td>Finder Default (12)</td></tr>
+    <tr><td>grid</td><td>True or false to indicate if the folder items are arranged to a grid. This may or may not
+                         cause items explicitly positioned to move.</td><td>No</td><td>"false"</td></tr>
+    <tr><td>height</td><td>The default height of a Finder window opened on this folder.</td><td>No</td><td>Finder Default</td></tr>
+    <tr><td>icon_size</td><td>The size of the icons shown in this folder.</td><td>No</td><td>Finder Default (48)</td></tr>
+    <tr><td>show_toolbar</td><td>True or false to indicate if a Finder window opened on this folder includes a toolbar.</td>
+                         <td>No</td><td>"false"</td></tr>
+	<tr><td>text_position</td><td>The position of the icon labels. This can either be "bottom" or "right".</td><td>No</td><td>"bottom"</td></tr>
+	<tr><td>toolbar_width</td><td>The default width of the toolbar in a Finder window opened on this folder.</td><td>No</td>
+	                     <td>Finder Default</td></tr>
+    <tr><td>type</td><td>The view type. Currently only "icon" is supported.</td><td>Yes</td><td></td></tr>
+    <tr><td>width</td><td>The default width of a Finder window opened on this folder.</td><td>No</td><td>Finder Default</td></tr>
+    <tr><td>x</td><td>The default x position of a Finder window opened on this folder.</td><td>No</td><td>Finder Default</td></tr>
+    <tr><td>y</td><td>The default y position of a Finder window opened on this folder.</td><td>No</td><td>Finder Default</td></tr>
+    </table>
+  </p>
+</p>
+
+<p>
+  <a name="file"></a>
+  <h3>file</h3>
+  <p>
+    Contained In:<br>
+    <a href="#image">image</a></br>
+    <a href="#folder">folder</a></br>
+  </p>
+  <p>
+    <table border=3>
+    <tr><td>Attribute</td><td>Description</td><td>Required</td><td>Default Value</td></tr>
+    <tr><td>name</td><td>The name of the file or bundle in the image.</td><td>Yes</td><td></td></tr>
+    <tr><td>required</td><td>If required is set to false, then no error will occur if the file is not found.
+                             Instead the file will be skipped.</td><td>No</td><td>"true"</td></tr>
+    <tr><td>source</td><td>The path to the source file or bundle that is copied into the image.</td><td>Yes</td><td></td></tr>
+    <tr><td>x</td><td>The x position of the file icon in the view. Note: If the position is set for any visible
+                      item, it should be set for all visible items in the same view.</td><td>No</td><td>Finder Default</td></tr>
+    <tr><td>y</td><td>The y position of the file icon in the view. Note: If the position is set for any visible
+                      item, it should be set for all visible items in the same view.</td><td>No</td><td>Finder Default</td></tr>
+    </table>
+  </p>
+</p>
+
+<p>
+  <a name="folder"></a>
+  <h3>folder</h3>
+  <p>
+    Contained In:<br>
+    <a href="#image">image</a></br>
+    <a href="#folder">folder</a></br>
+  </p>
+  <p>
+    Can Contain:<br>
+    <a href="#view">view</a> (0 or 1)<br>
+    <a href="#file">file</a> (0 or more)<br>
+    <a href="#folder">folder</a> (0 or more)<br>
+    <a href="#link">link</a> (0 or more)<br>
+  </p>
+  <p>
+    <table border=3>
+    <tr><td>Attribute</td><td>Description</td><td>Required</td><td>Default Value</td></tr>
+    <tr><td>name</td><td>The name of the folder in the image.</td><td>Yes</td><td></td></tr>
+    <tr><td>x</td><td>The x position of the folder icon in the view. Note: If the position is set for any visible
+                      item, it should be set for all visible items in the same view.</td><td>No</td><td>Finder Default</td></tr>
+    <tr><td>y</td><td>The y position of the folder icon in the view. Note: If the position is set for any visible
+                      item, it should be set for all visible items in the same view.</td><td>No</td><td>Finder Default</td></tr>
+    </table>
+  </p>
+</p>
+
+<p>
+  <a name="link"></a>
+  <h3>link</h3>
+  <p>
+    Contained In:<br>
+    <a href="#image">image</a></br>
+    <a href="#folder">folder</a></br>
+  </p>
+  <p>
+    <table border=3>
+    <tr><td>Attribute</td><td>Description</td><td>Required</td><td>Default Value</td></tr>
+    <tr><td>name</td><td>The name of the link in the image.</td><td>Yes</td><td></td></tr>
+    <tr><td>target</td><td>The path to the target of the link.</td><td>Yes</td><td></td></tr>
+    <tr><td>x</td><td>The x position of the link icon in the view. Note: If the position is set for any visible
+                      item, it should be set for all visible items in the same view.</td><td>No</td><td>Finder Default</td></tr>
+    <tr><td>y</td><td>The y position of the link icon in the view. Note: If the position is set for any visible
+                      item, it should be set for all visible items in the same view.</td><td>No</td><td>Finder Default</td></tr>
+    </table>
+  </p>
+</p>
+
+<table width=100 height=500><tr><td></td></tr></table>
+
+</body>
+
+</html>

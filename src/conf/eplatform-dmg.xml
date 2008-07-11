@@ -1,0 +1,11 @@
+<dmgbuilder version="0.1">
+    <image name="eplatform" file="release/eplatform.dmg" open_folder=".">
+        <file name="eplatform.app" source="src/eplatform.app" x="170" y="120" />
+        <link name="Applications" target="/Applications" x="450" y="120" />
+        <folder name=".background">
+            <file name="bkgnd.png" source="src/IdegaDiskImageBackground.png" />
+        </folder>
+        <view type="icon" x="10" y="60" width="618" height="360" icon_size="128"
+              grid="false" show_toolbar="false" background=".background/bkgnd.png" />
+    </image>
+</dmgbuilder>
