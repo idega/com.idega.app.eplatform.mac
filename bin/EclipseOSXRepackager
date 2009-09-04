@@ -9,9 +9,9 @@ function fatal_error() {
 }
 
 function version() {
-  rev="$(echo '$Revision: 10 $' | perl -ne 'if(/Revision:\s*(\d+)/) {print $1} else {print "UNKNOWN"}')"
+  rev="1.3.0.4"
   if test -z "$1"; then
-    echo "EclipseOSXRepackager r$rev"
+    echo "YourSway Eclipse OS X Repackager $rev"
   else
     echo -n "$rev"
   fi
@@ -96,6 +96,8 @@ source_info_plist="$source_app_dir/Contents/Info.plist"
 source_plugins_dir="$source_dir/plugins"
 source_features_dir="$source_dir/features"
 source_configuration_dir="$source_dir/configuration"
+source_p2_dir="$source_dir/p2"
+source_artifacts_xml="$source_dir/artifacts.xml"
 mv_or_cp_r="cp -r"
 mv_or_cp_desc="Copying"
 
@@ -104,9 +106,11 @@ mv_or_cp_desc="Copying"
 #  Additional checks
 
 test -d "$source_plugins_dir"        || fatal_error "directory not found: $source_plugins_dir"
-test -d "$source_features_dir"       || fatal_error "directory not found: $source_features_dir"
 test -d "$source_configuration_dir"  || fatal_error "directory not found: $source_configuration_dir"
 test -f "$source_info_plist"         || fatal_error "expected file to exist: $source_info_plist"
+
+is_p2=false
+test -d "$source_p2_dir" && is_p2=true
 
 ####################################################################################
 #  Detemine target bundle name and location (and check if it exists)
@@ -134,7 +138,9 @@ fi
 #  Find the launcher
 
 launcher_jar="$(cd $source_plugins_dir; ls -1 org.eclipse.equinox.launcher_*)"
-launcher_fragment_jar="$(cd $source_plugins_dir; ls -1 org.eclipse.equinox.launcher.carbon.macosx_*/eclipse*.so)"
+launcher_fragment_jar="$(cd $source_plugins_dir; ls -1 org.eclipse.equinox.launcher.cocoa.macosx*/eclipse*.so)"
+test -z "$launcher_fragment_jar" &&
+  launcher_fragment_jar="$(cd $source_plugins_dir; ls -1 org.eclipse.equinox.launcher.carbon.macosx_*/eclipse*.so)"
 
 test -z "$launcher_jar"          && fatal_error "cannot find launcher jar (org.eclipse.equinox.launcher_*)"
 test -z "$launcher_fragment_jar" && fatal_error "cannot find launcher fragment jar (org.eclipse.equinox.launcher.carbon.macosx_*)"
@@ -191,8 +197,20 @@ mkdir "$target_java_dir"
 echo "$mv_or_cp_desc configuration area..."
 $mv_or_cp_r $verbose "$source_configuration_dir" "$target_java_dir/configuration"
 
-echo "$mv_or_cp_desc features..."
-$mv_or_cp_r $verbose "$source_features_dir" "$target_java_dir/features"
+if test -d "$source_p2_dir"; then
+	echo "$mv_or_cp_desc p2 configuration..."
+	$mv_or_cp_r $verbose "$source_p2_dir" "$target_java_dir/p2"
+fi
+
+if test -f "$source_artifacts_xml"; then
+	echo "$mv_or_cp_desc p2 artifacts..."
+	$mv_or_cp_r $verbose "$source_artifacts_xml" "$target_java_dir/artifacts.xml"
+fi
+
+test -d "$source_features_dir" && {
+  echo "$mv_or_cp_desc features..."
+  $mv_or_cp_r $verbose "$source_features_dir" "$target_java_dir/features"
+}
 
 echo "$mv_or_cp_desc plugins..."
 $mv_or_cp_r $verbose "$source_plugins_dir" "$target_java_dir/plugins"
